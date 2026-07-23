@@ -1,6 +1,6 @@
 # Enterprise Edge Desk Analytics
 
-![Edge Analytics HUD](<!-- Add your HUD screenshot here -->)
+![Edge Analytics HUD](assets/Edge_analytics_hub.png)
 
 An edge-optimized, real-time computer vision pipeline for employee tracking, zone-based dwell time analysis, and gaze estimation. Designed specifically for deployment on edge AI hardware (like Raspberry Pi 5 with AI cameras), this system operates entirely locally without requiring cloud GPU processing.
 
@@ -63,6 +63,8 @@ python tools/draw_zones.py
 ```
 *   Click to draw points. Click `Name Zone` to save the polygon. Click `Save & Exit` when finished.
 
+![Draw Zones](assets/DrawZone.png)
+
 ### 2. Enroll Employees
 Run the multi-shot enrollment wizard to create biometric profiles.
 ```bash
@@ -70,6 +72,8 @@ python tools/enroll_face.py
 ```
 *   Click `START ENROLLMENT`.
 *   Follow the on-screen UI prompts to look Center, Left, and Right.
+
+![Enroll Face](assets/enroll.png)
 
 ### 3. Start Live Analytics
 Launch the main enterprise pipeline.
