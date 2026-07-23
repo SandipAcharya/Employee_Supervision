@@ -148,10 +148,13 @@ def main():
 
         h, w, _ = frame.shape
 
+        # Distinct, vibrant colors for zones (BGR format)
+        ZONE_COLORS = [(255, 100, 0), (0, 150, 255), (0, 200, 0), (200, 0, 255), (0, 255, 255)]
+
         # Render zones as clean, translucent fills
         overlay = frame.copy()
         for idx, (zone_name, poly) in enumerate(zone_checker.aligned_zones.items()):
-            color = (255, 100, 0) if idx % 2 == 0 else (0, 150, 255)
+            color = ZONE_COLORS[idx % len(ZONE_COLORS)]
             cv2.fillPoly(overlay, [poly], color)
             cv2.polylines(frame, [poly], True, color, 2)
             cv2.putText(frame, f"Zone: {zone_name}", tuple(poly[0]), 
@@ -176,13 +179,10 @@ def main():
                 active_track_ids.append(track_id)
                 x1, y1, x2, y2 = box
                 
-                # Check multiple points for robust zone detection (Center, Feet, Head, Left, Right)
+                # For CCTV/Edge deployments, checking the feet and chest provides the most accurate spatial tracking without false edge triggers
                 points_to_check = [
-                    (int((x1 + x2) / 2), int((y1 + y2) / 2)), # Center
-                    (int((x1 + x2) / 2), y2),                 # Feet
-                    (int((x1 + x2) / 2), int(y1 + (y2 - y1) * 0.2)), # Head
-                    (x1, int((y1 + y2) / 2)),                 # Left Edge
-                    (x2, int((y1 + y2) / 2))                  # Right Edge
+                    (int((x1 + x2) / 2), y2),                               # Feet (Bottom Center - Best for floor plan mapping)
+                    (int((x1 + x2) / 2), int(y1 + (y2 - y1) * 0.3))         # Chest point (Bare minimum center mass)
                 ]
 
                 active_zone = None
