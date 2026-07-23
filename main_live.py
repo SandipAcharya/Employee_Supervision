@@ -179,17 +179,10 @@ def main():
                 active_track_ids.append(track_id)
                 x1, y1, x2, y2 = box
                 
-                # For CCTV/Edge deployments, checking the feet and chest provides the most accurate spatial tracking without false edge triggers
-                points_to_check = [
-                    (int((x1 + x2) / 2), y2),                               # Feet (Bottom Center - Best for floor plan mapping)
-                    (int((x1 + x2) / 2), int(y1 + (y2 - y1) * 0.3))         # Chest point (Bare minimum center mass)
-                ]
-
-                active_zone = None
-                for pt in points_to_check:
-                    active_zone = zone_checker.check_position(pt)
-                    if active_zone:
-                        break
+                # Calculate pixel-perfect Intersection over Area (IoA) for seating scenarios
+                # If 20% of the person intersects with the desk polygon, they are sitting at it.
+                # This completely ignores accidental arm/shoulder brushing (false positives)
+                active_zone = zone_checker.check_box_overlap([x1, y1, x2, y2], frame.shape)
                         
                 if active_zone:
                     zone_occupancy[active_zone] += 1

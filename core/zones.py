@@ -83,3 +83,34 @@ class ZoneChecker:
             if dist >= 0:
                 return name
         return None
+        
+    def check_box_overlap(self, box, frame_shape, overlap_threshold=0.20):
+        """
+        Calculates pixel-perfect intersection between a bounding box and all zones.
+        Perfect for tracking people sitting at desks where feet are hidden.
+        """
+        x1, y1, x2, y2 = box
+        # Clip coordinates to frame boundaries
+        h, w = frame_shape[:2]
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(w, x2), min(h, y2)
+        
+        box_area = (x2 - x1) * (y2 - y1)
+        if box_area <= 0: return None
+        
+        for name, poly in self.aligned_zones.items():
+            # Create a blank mask for the whole frame
+            mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.fillPoly(mask, [poly], 1)
+            
+            # Crop the mask exactly to the person's bounding box
+            overlap_crop = mask[y1:y2, x1:x2]
+            overlap_area = cv2.countNonZero(overlap_crop)
+            
+            poly_area = cv2.contourArea(poly)
+            
+            # If the person's body is 20% inside the zone OR they cover 20% of the desk area
+            if overlap_area > (box_area * overlap_threshold) or (poly_area > 0 and overlap_area > (poly_area * overlap_threshold)):
+                return name
+                
+        return None
